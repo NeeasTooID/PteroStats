@@ -1,52 +1,23 @@
-const intigrityCheck = require("./modules/intigrityCheck");
-
-if(!intigrityCheck()){
-  return console.log("Intigrity check failed!");
-}
-
 const fs = require("node:fs");
-const chalk = require("chalk");
-const yaml = require("js-yaml");
-const { Client, GatewayIntentBits } = require("discord.js");
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const cliColor = require("cli-color");
+const package = require("./package.json");
 
-client.config = yaml.load(fs.readFileSync("./config.yml", "utf8"));
+console.log(
+    `    _${cliColor.blueBright.bold(`${cliColor.underline("Ptero")}dact${cliColor.underline("yl & P")}eli${cliColor.underline("can")}`)}___    ______   ______   \n` +
+    `   /\\  ___\\  /\\__  _\\ /\\  __ \\  /\\__  _\\ /\\  ___\\  \n` +
+    `   \\ \\___  \\ \\/_ \\ \\/ \\ \\ \\_\\ \\ \\/_/\\ \\/ \\ \\___  \\ \n` +
+    `    \\/\\_____\\   \\ \\_\\  \\ \\_\\ \\_\\   \\ \\_\\  \\/\\_____\\ \n` +
+    `     \\/_____/    \\/_/   \\/_/\\/_/    \\/_/   \\/_____/${cliColor.yellowBright.bold(`${package.version}`)}`
+);
 
-if (
-  client.config.panel.adminkey ||
-  client.config.resource ||
-  client.config.message.image
-) {
-  console.log(
-    chalk.cyan("[PteroStats] ") +
-      chalk.red(
-        "You are using old config file, please update your config file at "
-      ) +
-      chalk.green(
-        "https://github.com/HirziDevs/PteroStats/blob/main/config.yml"
-      )
-  );
-  process.exit();
-}
+console.log(
+    ` \nCopyright © 2022 - ${new Date().getFullYear()} HirziDevs & Contributors\n ` +
+    " \nDiscord: https://discord.znproject.my.id" +
+    " \n Source: https://github.com/HirziDevs/PteroStats" +
+    " \nLicense: https://github.com/Hirzidevs/PteroStats/blob/main/LICENSE" +
+    ` \n \n${package.description}\n `
+);
 
-if (client.config.token.startsWith("Put") || !client.config.token.length) {
-  console.log(
-    chalk.cyan("[PteroStats] ") + chalk.red("Error! Invalid Discord Bot Token")
-  );
-  process.exit();
-}
+if (!fs.existsSync(".env") || !fs.existsSync(".setup-complete")) return require("./handlers/setup.js")();
 
-const eventFiles = fs
-  .readdirSync("./events")
-  .filter((file) => file.endsWith(".js"));
-
-for (const file of eventFiles) {
-  const event = require(`./events/${file}`);
-  if (event.once) {
-    client.once(event.name, (...args) => event.execute(...args));
-  } else {
-    client.on(event.name, (...args) => event.execute(...args));
-  }
-}
-
-client.login(client.config.token);
+require("./handlers/application.js")();
